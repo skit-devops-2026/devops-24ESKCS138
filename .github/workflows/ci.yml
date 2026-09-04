@@ -1,0 +1,39 @@
+# GitHub Actions CI workflow for the Kisan Market frontend.
+
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  hygiene:
+    name: Repository hygiene
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run hygiene checks
+        run: bash scripts/hygiene.sh
+
+  build-and-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    needs: hygiene
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install
+        run: make install
+
+      - name: Test
+        run: make test
+
+      - name: Build
+        run: make build
