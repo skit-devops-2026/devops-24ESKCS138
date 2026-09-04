@@ -1,4 +1,3 @@
-# Jenkins pipeline for the Kisan Market frontend.
 
 pipeline {
     agent any
