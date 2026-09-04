@@ -47,3 +47,7 @@ Feature changes are developed on separate branches and merged into `main` throug
 ## Git Workflow
 
 Feature changes are developed on separate branches and merged into `main` through Pull Requests.
+
+## Continuous Integration
+
+GitHub Actions automatically runs repository hygiene checks and the frontend test suite on every push and pull request.
