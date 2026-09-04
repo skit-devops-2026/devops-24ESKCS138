@@ -35,3 +35,15 @@ make install
 make test
 make build
 make run
+## Git Workflow
+
+Feature changes are developed on separate branches and merged into `main` through Pull Requests.
+EOFcat >> README.md <<'EOF'
+
+## Git Workflow
+
+Feature changes are developed on separate branches and merged into `main` through Pull Requests.
+
+## Git Workflow
+
+Feature changes are developed on separate branches and merged into `main` through Pull Requests.
