@@ -7,11 +7,8 @@ install:
 	@echo "No external dependencies required for the static frontend"
 
 test:
-	@echo "Checking required frontend files..."
-	@test -f front1.html
-	@test -f front1.css
-	@test -f script1.js
-	@echo "All required frontend files are present"
+	@echo "Running frontend tests..."
+	@python3 -m unittest discover -s tests -p "test_*.py" -v
 
 build:
 	@rm -rf build
