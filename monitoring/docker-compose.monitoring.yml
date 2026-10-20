@@ -1,0 +1,31 @@
+
+services:
+  blackbox-exporter:
+    image: prom/blackbox-exporter:latest
+    command:
+      - "--config.file=/etc/blackbox_exporter/blackbox.yml"
+    volumes:
+      - ./blackbox.yml:/etc/blackbox_exporter/blackbox.yml:ro
+    ports:
+      - "9115:9115"
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - blackbox-exporter
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    restart: unless-stopped
