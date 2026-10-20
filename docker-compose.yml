@@ -1,0 +1,8 @@
+
+services:
+  kisan-market:
+    build: .
+    image: kisan-market:1.0
+    ports:
+      - "8080:80"
+    restart: unless-stopped
