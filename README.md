@@ -75,6 +75,60 @@ GitHub Actions automatically runs repository hygiene checks and the frontend tes
 
 The application is containerized using Docker and deployed on Render. Prometheus and Blackbox Exporter are configured to monitor the availability and response time of the live website. Grafana is used to visualize monitoring metrics.
 
+## Kubernetes Deployment
+
+The Kisan Market application is deployed on Kubernetes using a Deployment with two replicas and a NodePort Service.
+
+### Verify the Deployment
+
+```bash
+kubectl get nodes
+kubectl get deployments
+kubectl get pods
+kubectl get services
+```
+
+### Access the Application
+
+Run the following command to access the application locally:
+
+```bash
+kubectl port-forward service/kisan-market-service 8082:80
+```
+
+Keep the terminal running and open http://localhost:8082 in your browser.
+
+### Configuration
+
+- Deployment manifest: `k8s/deployment.yaml`
+- Service manifest: `k8s/service.yaml`
+- Container image: `hanumanart/kisan-market:1.2`
+- Replicas: 2
+- Container port: 10000
+- Service type: NodePort
+- Configured NodePort: 30080
+- Deployment screenshot: `docs/kubernetes-deployment.png`
+
+### Apply the Manifests
+
+```bash
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+```
+
+## Kubernetes Deployment
+
+The Kisan Market application is deployed on Kubernetes using a Deployment
+with two replicas and a NodePort Service.
+
+### Verify the Deployment
+
+```bash
+kubectl get nodes
+kubectl get deployments
+kubectl get pods
+kubectl get services
+
 ## Git Workflow
 
 Feature changes are developed on separate branches and merged into `main` through Pull Requests.
