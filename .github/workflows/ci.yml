@@ -1,3 +1,4 @@
+
 # GitHub Actions CI workflow for the Kisan Market frontend.
 
 name: CI
@@ -37,3 +38,35 @@ jobs:
 
       - name: Build
         run: make build
+
+  docker:
+    name: Build and push Docker image to GHCR
+    runs-on: ubuntu-latest
+    needs: [hygiene, build-and-test]
+    if: github.event_name == 'push'
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
