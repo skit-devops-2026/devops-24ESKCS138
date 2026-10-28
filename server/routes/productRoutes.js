@@ -2,14 +2,21 @@ import express from 'express';
 import {
   getAllProducts,
   getProductById,
+  createProduct,
+  updateProduct,
+  deleteProduct,
 } from '../controllers/productController.js';
 
 const router = express.Router();
 
-// GET /api/products
-router.get('/', getAllProducts);
+// Product CRUD routes
+router.route('/')
+  .get(getAllProducts)
+  .post(createProduct);
 
-// GET /api/products/:id
-router.get('/:id', getProductById);
+router.route('/:id')
+  .get(getProductById)
+  .put(updateProduct)
+  .delete(deleteProduct);
 
 export default router;

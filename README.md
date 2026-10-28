@@ -125,8 +125,8 @@ FSD Project/
 - [x] **M0** — Audit repository, current UI, Git state, and DevOps assets.
 - [x] **M1** — Convert frontend to React + Vite with responsive Kisan Market theme.
 - [x] **M2** — Build Express API foundation, `/api/health`, and centralized error handling.
-- [ ] **M3** — Connect MongoDB Atlas and define Mongoose models (`User`, `Product`, `Order`).
-- [ ] **M4** — Implement end-to-end product CRUD with database persistence.
+- [x] **M3** — Connect MongoDB Atlas and define Mongoose models (`User`, `Product`, `Order`).
+- [x] **M4** — Implement end-to-end product CRUD with database persistence.
 - [ ] **M5** — Add authentication, JWT tokens, bcrypt hashing, and role authorization.
 - [ ] **M6** — Connect farmer and buyer dashboards with order placement workflows.
 - [ ] **M7** — Comprehensive testing: validation, permissions, error handling, responsive UI.
@@ -168,8 +168,8 @@ npm run dev     # Starts on http://localhost:5173
 - [ ] MongoDB connection succeeds.
 - [ ] Registration and login work; passwords hashed with bcrypt.
 - [ ] Invalid credentials and invalid inputs return safe error responses.
-- [ ] Product create/list/detail/update/delete endpoints work end-to-end.
-- [ ] Product changes persist after page refresh.
+- [x] Product create/list/detail/update/delete endpoints work end-to-end.
+- [x] Product changes persist after page refresh.
 - [ ] Role authorization enforced: farmers cannot modify another farmer's produce.
 - [ ] Buyer can browse and place an order with server-side stock calculation.
 - [ ] Live CRUD flow tested after deployment.

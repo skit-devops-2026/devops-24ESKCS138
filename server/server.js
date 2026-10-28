@@ -4,18 +4,24 @@ import dotenv from 'dotenv';
 import healthRoutes from './routes/healthRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { connectDB } from './config/db.js';
 
 // Load environment variables
 dotenv.config();
+
+// Connect to MongoDB
+connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
-// Standard Middlewares
+// Standard Middlewares - allow frontend origins & all CRUD methods
 app.use(
   cors({
-    origin: CLIENT_URL,
+    origin: [CLIENT_URL, 'http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:3000'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   })
 );

@@ -63,7 +63,7 @@ Upgrade the existing Kisan Market frontend into a working MERN-stack agricultura
 - Health endpoint returns a clear success response.
 - Invalid requests produce useful status codes and messages.
 
-### M3 — MongoDB and data models
+### M3 — MongoDB and data models [COMPLETED]
 **Tasks**
 1. Connect the backend to MongoDB Atlas using Mongoose.
 2. Define and validate initial models:
@@ -78,7 +78,7 @@ Upgrade the existing Kisan Market frontend into a working MERN-stack agricultura
 - Valid records can be created and read.
 - Invalid data is rejected without crashing the server.
 
-### M4 — Product CRUD (first complete vertical slice)
+### M4 — Product CRUD (first complete vertical slice) [COMPLETED]
 **Tasks**
 1. `POST /api/products` — create a product listing.
 2. `GET /api/products` — list products, with optional category/search filters.

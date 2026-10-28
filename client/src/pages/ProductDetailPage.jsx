@@ -1,10 +1,46 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { getProductById } from '../services/api';
 import { MOCK_PRODUCTS } from '../data/mockProducts';
 
 export default function ProductDetailPage() {
   const { id } = useParams();
-  const product = MOCK_PRODUCTS.find((p) => p.id === id);
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [orderQty, setOrderQty] = useState(1);
+  const [orderNotice, setOrderNotice] = useState('');
+
+  useEffect(() => {
+    let isMounted = true;
+    setLoading(true);
+
+    getProductById(id)
+      .then((data) => {
+        if (isMounted) {
+          setProduct(data);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (isMounted) {
+          const fallback = MOCK_PRODUCTS.find((p) => p.id === id);
+          setProduct(fallback || null);
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '100px 20px', color: 'var(--green)' }}>
+        <p style={{ fontSize: '18px', fontWeight: '500' }}>Loading produce details...</p>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -19,6 +55,11 @@ export default function ProductDetailPage() {
       </div>
     );
   }
+
+  const handleOrder = (e) => {
+    e.preventDefault();
+    setOrderNotice(`✓ Order of ${orderQty} ${product.unit || 'kg'} of ${product.name} submitted! (Total: ₹${orderQty * product.price})`);
+  };
 
   return (
     <div style={{ padding: '60px 7%', maxWidth: '900px', margin: '0 auto' }}>
@@ -98,23 +139,69 @@ export default function ProductDetailPage() {
             }}
           >
             <p style={{ marginBottom: '6px' }}>
-              <strong>Farmer:</strong> {product.farmer}
+              <strong>Farmer:</strong> {product.farmer || 'Verified Farmer'}
             </p>
             <p style={{ marginBottom: '6px' }}>
-              <strong>Origin:</strong> {product.location}
+              <strong>Origin:</strong> {product.location || 'Direct Farm'}
             </p>
             <p style={{ marginBottom: '20px' }}>
-              <strong>Available:</strong> {product.stock} {product.unit || 'kg'} in stock
+              <strong>Available:</strong> {product.stock || 10} {product.unit || 'kg'} in stock
             </p>
           </div>
 
-          <button
-            className="primary-btn"
-            style={{ width: '100%', padding: '14px' }}
-            onClick={() => alert(`Simulated order for ${product.name} at ₹${product.price}`)}
-          >
-            Place Direct Order
-          </button>
+          {orderNotice ? (
+            <div
+              style={{
+                background: '#dcfce7',
+                color: '#15803d',
+                padding: '12px',
+                borderRadius: '6px',
+                fontSize: '13px',
+                fontWeight: '500',
+              }}
+            >
+              {orderNotice}
+            </div>
+          ) : (
+            <form onSubmit={handleOrder}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  marginBottom: '15px',
+                }}
+              >
+                <label style={{ fontSize: '13px', fontWeight: '500' }}>
+                  Quantity ({product.unit || 'kg'}):
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max={product.stock || 100}
+                  value={orderQty}
+                  onChange={(e) => setOrderQty(Math.max(1, Number(e.target.value)))}
+                  style={{
+                    width: '80px',
+                    padding: '6px 10px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                  }}
+                />
+                <span style={{ fontSize: '14px', marginLeft: 'auto', fontWeight: '600' }}>
+                  Total: ₹{orderQty * product.price}
+                </span>
+              </div>
+
+              <button
+                type="submit"
+                className="primary-btn"
+                style={{ width: '100%', padding: '14px' }}
+              >
+                Place Direct Order
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </div>

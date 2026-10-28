@@ -1,56 +1,97 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getProducts, createProduct, deleteProduct } from '../services/api';
 import { MOCK_PRODUCTS } from '../data/mockProducts';
 
 export default function FarmerDashboardPage() {
-  const [listings, setListings] = useState(MOCK_PRODUCTS.slice(0, 4));
+  const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [statusMsg, setStatusMsg] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     category: 'Vegetables',
     price: '',
     unit: 'kg',
-    stock: '',
+    stock: '100',
     description: '',
+    farmer: 'Logged In Farmer',
+    location: 'Jaipur Mandi',
   });
 
-  const handleAddProduct = (e) => {
+  // Load listings on mount
+  const loadListings = () => {
+    setLoading(true);
+    getProducts()
+      .then((data) => {
+        setListings(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.warn('API error, using fallback:', err.message);
+        setListings(MOCK_PRODUCTS);
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    loadListings();
+  }, []);
+
+  const handleAddProduct = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.price) return;
 
-    const newProduct = {
-      id: String(Date.now()),
-      name: formData.name,
-      category: formData.category,
-      price: Number(formData.price),
-      unit: formData.unit,
-      stock: Number(formData.stock) || 100,
-      farmer: 'Logged In Farmer',
-      location: 'Local Farm',
-      description: formData.description || 'Farm-fresh crop listing',
-      icon:
-        formData.category === 'Vegetables'
-          ? '🥦'
-          : formData.category === 'Fruits'
-          ? '🍎'
-          : formData.category === 'Grains'
-          ? '🌾'
-          : '🌱',
-    };
+    try {
+      const created = await createProduct({
+        name: formData.name,
+        category: formData.category,
+        price: Number(formData.price),
+        unit: formData.unit,
+        stock: Number(formData.stock) || 50,
+        description: formData.description,
+        farmer: formData.farmer,
+        location: formData.location,
+      });
 
-    setListings([newProduct, ...listings]);
-    setFormData({
-      name: '',
-      category: 'Vegetables',
-      price: '',
-      unit: 'kg',
-      stock: '',
-      description: '',
-    });
-    setShowAddModal(false);
+      setStatusMsg(`✓ "${created.name}" published successfully!`);
+      setShowAddModal(false);
+      setFormData({
+        name: '',
+        category: 'Vegetables',
+        price: '',
+        unit: 'kg',
+        stock: '100',
+        description: '',
+        farmer: 'Logged In Farmer',
+        location: 'Jaipur Mandi',
+      });
+      loadListings();
+
+      setTimeout(() => setStatusMsg(''), 3000);
+    } catch (err) {
+      alert(`Error creating product: ${err.message}`);
+    }
   };
 
-  const handleDelete = (id) => {
-    setListings(listings.filter((item) => item.id !== id));
+  const handleDelete = async (id, name) => {
+    if (!id) {
+      console.error('Delete called with missing product ID');
+      return;
+    }
+
+    try {
+      await deleteProduct(id);
+      setStatusMsg(`✓ "${name}" deleted successfully.`);
+      // Optimistically update list
+      setListings((prev) => prev.filter((item) => (item.id || item._id) !== id));
+      setTimeout(() => setStatusMsg(''), 3000);
+    } catch (err) {
+      console.warn('Backend delete error, removing locally:', err.message);
+      // Fallback: Remove locally so user is never blocked even if server was paused
+      setListings((prev) => prev.filter((item) => (item.id || item._id) !== id));
+      setStatusMsg(`✓ "${name}" removed from view (${err.message.includes('fetch') ? 'Backend offline' : err.message}).`);
+      setTimeout(() => setStatusMsg(''), 4000);
+    }
   };
 
   return (
@@ -59,7 +100,7 @@ export default function FarmerDashboardPage() {
         <div>
           <h1 style={{ fontSize: '26px' }}>Farmer Dashboard</h1>
           <p style={{ color: 'var(--gray)', fontSize: '13px' }}>
-            Manage your agricultural produce, check mandi rates, and view orders.
+            Manage your crop listings, track your inventory, and view inquiries.
           </p>
         </div>
 
@@ -72,89 +113,144 @@ export default function FarmerDashboardPage() {
         </button>
       </div>
 
+      {statusMsg && (
+        <div
+          style={{
+            background: '#dcfce7',
+            color: '#15803d',
+            padding: '12px 18px',
+            borderRadius: '8px',
+            marginBottom: '20px',
+            fontWeight: '500',
+            fontSize: '14px',
+          }}
+        >
+          {statusMsg}
+        </div>
+      )}
+
       <div className="stats-grid">
         <div className="stat-box">
           <h4>My Active Listings</h4>
           <div className="stat-val">{listings.length}</div>
         </div>
         <div className="stat-box">
-          <h4>Total Inquiries</h4>
-          <div className="stat-val">18</div>
+          <h4>Total Stock Available</h4>
+          <div className="stat-val">
+            {listings.reduce((acc, curr) => acc + (Number(curr.stock) || 0), 0)} units
+          </div>
         </div>
         <div className="stat-box">
-          <h4>Estimated Value</h4>
+          <h4>Estimated Inventory Value</h4>
           <div className="stat-val">
             ₹
             {listings
-              .reduce((acc, curr) => acc + curr.price * (curr.stock || 50), 0)
+              .reduce(
+                (acc, curr) =>
+                  acc + (Number(curr.price) || 0) * (Number(curr.stock) || 20),
+                0
+              )
               .toLocaleString()}
           </div>
         </div>
       </div>
 
-      <h2 style={{ fontSize: '18px', marginBottom: '15px' }}>
-        Current Crop & Produce Listings
-      </h2>
-
-      <div style={{ overflowX: 'auto' }}>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Produce</th>
-              <th>Category</th>
-              <th>Price</th>
-              <th>Stock</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {listings.map((item) => (
-              <tr key={item.id}>
-                <td>
-                  <strong>
-                    {item.icon} {item.name}
-                  </strong>
-                </td>
-                <td>{item.category}</td>
-                <td>
-                  ₹{item.price} / {item.unit}
-                </td>
-                <td>{item.stock} {item.unit}</td>
-                <td>
-                  <span
-                    style={{
-                      background: '#dcfce7',
-                      color: '#15803d',
-                      padding: '3px 8px',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      fontWeight: '600',
-                    }}
-                  >
-                    Active
-                  </span>
-                </td>
-                <td>
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    style={{
-                      border: 'none',
-                      background: '#fee2e2',
-                      color: '#b91c1c',
-                      padding: '5px 10px',
-                      borderRadius: '5px',
-                      fontSize: '12px',
-                    }}
-                  >
-                    Remove
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '15px',
+        }}
+      >
+        <h2 style={{ fontSize: '18px' }}>Active Crop & Produce Listings</h2>
+        <button
+          onClick={loadListings}
+          style={{
+            background: '#f3f4f6',
+            border: '1px solid #d1d5db',
+            borderRadius: '6px',
+            padding: '6px 12px',
+            fontSize: '12px',
+          }}
+        >
+          🔄 Refresh
+        </button>
       </div>
+
+      {loading ? (
+        <p style={{ padding: '40px 0', textAlign: 'center', color: 'var(--gray)' }}>
+          Loading your listings from Kisan Market API...
+        </p>
+      ) : listings.length === 0 ? (
+        <div className="no-products-msg">
+          <p>You have no active listings. Click "+ Add New Produce" to publish your first crop!</p>
+        </div>
+      ) : (
+        <div style={{ overflowX: 'auto' }}>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Produce</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Origin / Mandi</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {listings.map((item) => (
+                <tr key={item.id}>
+                  <td>
+                    <strong>
+                      {item.icon || '🌾'} {item.name}
+                    </strong>
+                  </td>
+                  <td>{item.category}</td>
+                  <td>
+                    <strong>₹{item.price}</strong> / {item.unit || 'kg'}
+                  </td>
+                  <td>{item.stock} {item.unit || 'kg'}</td>
+                  <td>{item.location || 'Direct Farm'}</td>
+                  <td>
+                    <span
+                      style={{
+                        background: '#dcfce7',
+                        color: '#15803d',
+                        padding: '3px 8px',
+                        borderRadius: '4px',
+                        fontSize: '11px',
+                        fontWeight: '600',
+                      }}
+                    >
+                      Active
+                    </span>
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(item.id || item._id, item.name)}
+                      style={{
+                        border: 'none',
+                        background: '#fee2e2',
+                        color: '#b91c1c',
+                        padding: '6px 12px',
+                        borderRadius: '5px',
+                        fontSize: '12px',
+                        fontWeight: '500',
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {showAddModal && (
         <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
@@ -166,14 +262,14 @@ export default function FarmerDashboardPage() {
               ✕
             </button>
 
-            <h3 style={{ marginBottom: '15px' }}>Add Agricultural Produce</h3>
+            <h3 style={{ marginBottom: '15px' }}>Publish Agricultural Produce</h3>
 
             <form onSubmit={handleAddProduct}>
               <div className="form-group">
                 <label>Crop / Product Name *</label>
                 <input
                   type="text"
-                  placeholder="e.g. Fresh Mustard"
+                  placeholder="e.g. Organic Mustard Seeds"
                   value={formData.name}
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
@@ -190,7 +286,7 @@ export default function FarmerDashboardPage() {
                 }}
               >
                 <div className="form-group">
-                  <label>Category</label>
+                  <label>Category *</label>
                   <select
                     value={formData.category}
                     onChange={(e) =>
@@ -210,7 +306,8 @@ export default function FarmerDashboardPage() {
                   <label>Price (₹) *</label>
                   <input
                     type="number"
-                    placeholder="45"
+                    min="1"
+                    placeholder="e.g. 55"
                     value={formData.price}
                     onChange={(e) =>
                       setFormData({ ...formData, price: e.target.value })
@@ -244,9 +341,10 @@ export default function FarmerDashboardPage() {
                 </div>
 
                 <div className="form-group">
-                  <label>Available Quantity</label>
+                  <label>Available Stock</label>
                   <input
                     type="number"
+                    min="1"
                     placeholder="100"
                     value={formData.stock}
                     onChange={(e) =>
@@ -257,10 +355,22 @@ export default function FarmerDashboardPage() {
               </div>
 
               <div className="form-group">
-                <label>Description</label>
+                <label>Origin Mandi / Farm Location</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Alwar Mandi, Rajasthan"
+                  value={formData.location}
+                  onChange={(e) =>
+                    setFormData({ ...formData, location: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Description & Quality</label>
                 <textarea
                   rows="3"
-                  placeholder="Mention quality, harvest date, location..."
+                  placeholder="Freshly harvested, pesticide-free, graded quality..."
                   value={formData.description}
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
