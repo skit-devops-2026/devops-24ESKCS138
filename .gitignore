@@ -11,6 +11,7 @@ build/
 .env
 .env.*
 !.env.example
+.env.local
 
 # Editor and OS files
 .vscode/
@@ -21,3 +22,9 @@ Thumbs.db
 # Logs
 *.log
 npm-debug.log*
+
+# Lab & local scratch files
+Lab_Experiment/
+demo
+demo.cpp
+prism.cpp
