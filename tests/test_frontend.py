@@ -16,5 +16,21 @@ class FrontendTests(unittest.TestCase):
         self.assertIn("script1.js", html)
 
 
+class FullStackStructureTests(unittest.TestCase):
+
+    def test_mern_architecture_files_exist(self):
+        required_paths = [
+            "server/server.js",
+            "server/app.js",
+            "server/package.json",
+            "client/package.json",
+            "client/src/App.jsx",
+            "client/src/main.jsx",
+        ]
+        for rel_path in required_paths:
+            self.assertTrue((ROOT / rel_path).is_file(), f"{rel_path} is missing")
+
+
 if __name__ == "__main__":
     unittest.main()
+

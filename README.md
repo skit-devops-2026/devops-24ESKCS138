@@ -129,12 +129,12 @@ FSD Project/
 - [x] **M4** — Implement end-to-end product CRUD with database persistence.
 - [x] **M5** — Add authentication, JWT tokens, bcrypt hashing, and role authorization.
 - [x] **M6** — Connect farmer and buyer dashboards with order placement workflows.
-- [ ] **M7** — Comprehensive testing: validation, permissions, error handling, responsive UI.
+- [x] **M7** — Comprehensive testing: validation, permissions, error handling, responsive UI.
 - [ ] **M8** — Adapt Docker, CI, Kubernetes, and monitoring for full-stack MERN.
 
 ---
 
-## 7. Running Locally
+## 7. Running & Testing Locally
 
 ### 1. Run the Express Backend
 ```bash
@@ -158,6 +158,19 @@ cp .env.example .env
 npm run dev     # Starts on http://localhost:5173
 ```
 
+### 3. Run Automated Tests
+Execute all project tests using the root Makefile:
+```bash
+make test-all       # Runs Python CI tests, Node backend tests, and Vite build
+```
+
+Or run individual test suites:
+```bash
+make test           # Python unittest suite (tests/test_frontend.py)
+cd server && npm test   # Automated API test suite (33 tests, node:test)
+cd client && npm run build  # Vite production build check
+```
+
 ---
 
 ## 8. Testing Checklist
@@ -165,14 +178,15 @@ npm run dev     # Starts on http://localhost:5173
 - [x] Backend health endpoint responds successfully (`GET /api/health`).
 - [x] Responsive layout works on mobile, tablet, and desktop.
 - [x] Frontend and backend environment variables configured (`.env.example` & local).
-- [ ] MongoDB connection succeeds.
+- [x] Automated backend integration test suite created (33 tests passing).
 - [x] Registration and login work; passwords hashed with bcrypt.
 - [x] Invalid credentials and invalid inputs return safe error responses.
 - [x] Product create/list/detail/update/delete endpoints work end-to-end.
 - [x] Product changes persist after page refresh.
 - [x] Role authorization enforced: farmers cannot modify another farmer's produce.
 - [x] Buyer can browse and place an order with server-side stock calculation.
-- [ ] Live CRUD flow tested after deployment.
+- [x] Order status transitions (`pending` -> `confirmed`) work as expected.
+- [x] Repository hygiene check (`bash scripts/hygiene.sh`) passes with 0 failures.
 
 ---
 

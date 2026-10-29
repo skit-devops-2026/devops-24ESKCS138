@@ -37,7 +37,9 @@ export const protect = async (req, res, next) => {
 
       return next();
     } catch (error) {
-      console.error('JWT verification error:', error.message);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('JWT verification error:', error.message);
+      }
       return res.status(401).json({
         success: false,
         message: 'Not authorized, token invalid or expired',

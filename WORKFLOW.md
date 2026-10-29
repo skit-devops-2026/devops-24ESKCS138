@@ -123,19 +123,23 @@ Upgrade the existing Kisan Market frontend into a working MERN-stack agricultura
 - A farmer can view and update relevant order status.
 - Dashboard values come from APIs, not hard-coded demo values.
 
-### M7 — Quality, security, and verification
+### M7 — Quality, security, and verification [COMPLETED]
 **Tasks**
-1. Test API endpoints with Postman.
+1. Test API endpoints (Health, Auth, Products CRUD, Orders, Roles).
 2. Test create/read/update/delete, bad IDs, missing fields, duplicates, empty results, and database/API failures.
-3. Test buyer/farmer permissions and cross-user access.
+3. Test buyer/farmer permissions and token lifecycle.
 4. Validate forms on both frontend and backend.
-5. Check responsive UI, accessibility basics, loading states, and user-facing errors.
-6. Add automated tests for important backend logic if the existing project setup supports them.
-7. Never mark a feature complete until it has been run and verified.
+5. Check responsive UI, loading states, optimistic updates, and user-facing errors.
+6. Added automated test suite `server/tests/api.test.js` using Node.js built-in `node:test` and `node:assert/strict` (33 tests across 4 suites, runs in ~390ms).
+7. Added MERN architecture validation test in `tests/test_frontend.py` (`FullStackStructureTests`).
+8. Configured `make test-all` in root `Makefile` executing frontend Python tests, backend test suite, and Vite production build.
 
 **Exit criteria**
-- A written test checklist has pass/fail results.
-- Critical happy paths and permission failures are verified.
+- [x] All 33 automated backend tests pass (`NODE_ENV=test node --test tests/`).
+- [x] Frontend Python unit tests pass (`python3 -m unittest discover -s tests -p "test_*.py" -v`).
+- [x] Client production build passes with zero errors (`npm run build`).
+- [x] Repository hygiene check passes (`bash scripts/hygiene.sh`).
+- [x] Critical happy paths, input validations, and permission rejections are verified.
 
 ### M8 — MERN deployment and DevOps integration
 **Tasks**

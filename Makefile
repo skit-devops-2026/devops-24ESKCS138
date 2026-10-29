@@ -10,6 +10,17 @@ test:
 	@echo "Running frontend tests..."
 	@python3 -m unittest discover -s tests -p "test_*.py" -v
 
+test-backend:
+	@echo "Running backend test suite..."
+	@cd server && npm test
+
+test-client:
+	@echo "Building client for verification..."
+	@cd client && npm run build
+
+test-all: test test-backend test-client
+	@echo "All test suites passed successfully!"
+
 build:
 	@rm -rf build
 	@mkdir -p build
