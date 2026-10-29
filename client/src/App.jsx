@@ -8,22 +8,35 @@ import ProductDetailPage from './pages/ProductDetailPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import FarmerDashboardPage from './pages/FarmerDashboardPage';
+import OrdersPage from './pages/OrdersPage';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './context/AuthContext';
 
 export default function App() {
   return (
-    <div className="app-container">
-      <Navbar />
+    <AuthProvider>
+      <div className="app-container">
+        <Navbar />
 
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/products" element={<ProductsPage />} />
-        <Route path="/products/:id" element={<ProductDetailPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/farmer/dashboard" element={<FarmerDashboardPage />} />
-      </Routes>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/products" element={<ProductsPage />} />
+          <Route path="/products/:id" element={<ProductDetailPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route
+            path="/farmer/dashboard"
+            element={
+              <ProtectedRoute requiredRole="farmer">
+                <FarmerDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/orders" element={<OrdersPage />} />
+        </Routes>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </AuthProvider>
   );
 }

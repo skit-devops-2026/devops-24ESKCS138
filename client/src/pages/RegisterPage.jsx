@@ -1,26 +1,54 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function RegisterPage() {
   const [role, setRole] = useState('farmer');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [location, setLocation] = useState('');
   const [password, setPassword] = useState('');
-  const [statusMsg, setStatusMsg] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const { register } = useAuth();
   const navigate = useNavigate();
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
+    setErrorMsg('');
+
     if (!name || !email || !password) {
-      setStatusMsg('Please fill in all required fields.');
+      setErrorMsg('Please fill in all required fields.');
       return;
     }
 
-    setStatusMsg(`Registration submitted for ${name} (${role}). Connecting to backend in M5!`);
-    setTimeout(() => {
-      navigate('/login');
-    }, 1200);
+    if (password.length < 6) {
+      setErrorMsg('Password must be at least 6 characters long.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const user = await register({
+        name,
+        email,
+        password,
+        role,
+        phone,
+        location,
+      });
+
+      if (user.role === 'farmer') {
+        navigate('/farmer/dashboard');
+      } else {
+        navigate('/products');
+      }
+    } catch (err) {
+      setErrorMsg(err.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -46,18 +74,18 @@ export default function RegisterPage() {
           </button>
         </div>
 
-        {statusMsg && (
+        {errorMsg && (
           <div
             style={{
               padding: '10px 14px',
               borderRadius: '6px',
               fontSize: '13px',
-              background: '#dcfce7',
-              color: '#15803d',
+              background: '#fee2e2',
+              color: '#b91c1c',
               marginBottom: '15px',
             }}
           >
-            {statusMsg}
+            ⚠️ {errorMsg}
           </div>
         )}
 
@@ -95,10 +123,20 @@ export default function RegisterPage() {
           </div>
 
           <div className="form-group">
-            <label>Password *</label>
+            <label>Farm / City Location</label>
+            <input
+              type="text"
+              placeholder="e.g. Jaipur, Rajasthan"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Password (min 6 characters) *</label>
             <input
               type="password"
-              placeholder="Minimum 6 characters"
+              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -108,9 +146,10 @@ export default function RegisterPage() {
           <button
             type="submit"
             className="primary-btn"
+            disabled={loading}
             style={{ width: '100%', padding: '12px', marginTop: '10px' }}
           >
-            Register as {role === 'farmer' ? 'Farmer' : 'Buyer'}
+            {loading ? 'Creating Account...' : `Register as ${role === 'farmer' ? 'Farmer' : 'Buyer'}`}
           </button>
         </form>
 

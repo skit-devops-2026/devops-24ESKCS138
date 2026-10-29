@@ -127,8 +127,8 @@ FSD Project/
 - [x] **M2** — Build Express API foundation, `/api/health`, and centralized error handling.
 - [x] **M3** — Connect MongoDB Atlas and define Mongoose models (`User`, `Product`, `Order`).
 - [x] **M4** — Implement end-to-end product CRUD with database persistence.
-- [ ] **M5** — Add authentication, JWT tokens, bcrypt hashing, and role authorization.
-- [ ] **M6** — Connect farmer and buyer dashboards with order placement workflows.
+- [x] **M5** — Add authentication, JWT tokens, bcrypt hashing, and role authorization.
+- [x] **M6** — Connect farmer and buyer dashboards with order placement workflows.
 - [ ] **M7** — Comprehensive testing: validation, permissions, error handling, responsive UI.
 - [ ] **M8** — Adapt Docker, CI, Kubernetes, and monitoring for full-stack MERN.
 
@@ -166,12 +166,12 @@ npm run dev     # Starts on http://localhost:5173
 - [x] Responsive layout works on mobile, tablet, and desktop.
 - [x] Frontend and backend environment variables configured (`.env.example` & local).
 - [ ] MongoDB connection succeeds.
-- [ ] Registration and login work; passwords hashed with bcrypt.
-- [ ] Invalid credentials and invalid inputs return safe error responses.
+- [x] Registration and login work; passwords hashed with bcrypt.
+- [x] Invalid credentials and invalid inputs return safe error responses.
 - [x] Product create/list/detail/update/delete endpoints work end-to-end.
 - [x] Product changes persist after page refresh.
-- [ ] Role authorization enforced: farmers cannot modify another farmer's produce.
-- [ ] Buyer can browse and place an order with server-side stock calculation.
+- [x] Role authorization enforced: farmers cannot modify another farmer's produce.
+- [x] Buyer can browse and place an order with server-side stock calculation.
 - [ ] Live CRUD flow tested after deployment.
 
 ---

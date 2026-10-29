@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { getProducts, createProduct, deleteProduct } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { MOCK_PRODUCTS } from '../data/mockProducts';
 
 export default function FarmerDashboardPage() {
+  const { user, token } = useAuth();
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -14,8 +17,8 @@ export default function FarmerDashboardPage() {
     unit: 'kg',
     stock: '100',
     description: '',
-    farmer: 'Logged In Farmer',
-    location: 'Jaipur Mandi',
+    farmer: user?.name || 'Verified Farmer',
+    location: user?.location || 'Jaipur Mandi',
   });
 
   // Load listings on mount
@@ -42,16 +45,19 @@ export default function FarmerDashboardPage() {
     if (!formData.name || !formData.price) return;
 
     try {
-      const created = await createProduct({
-        name: formData.name,
-        category: formData.category,
-        price: Number(formData.price),
-        unit: formData.unit,
-        stock: Number(formData.stock) || 50,
-        description: formData.description,
-        farmer: formData.farmer,
-        location: formData.location,
-      });
+      const created = await createProduct(
+        {
+          name: formData.name,
+          category: formData.category,
+          price: Number(formData.price),
+          unit: formData.unit,
+          stock: Number(formData.stock) || 50,
+          description: formData.description,
+          farmer: user?.name || formData.farmer,
+          location: user?.location || formData.location,
+        },
+        token
+      );
 
       setStatusMsg(`✓ "${created.name}" published successfully!`);
       setShowAddModal(false);
@@ -80,7 +86,7 @@ export default function FarmerDashboardPage() {
     }
 
     try {
-      await deleteProduct(id);
+      await deleteProduct(id, token);
       setStatusMsg(`✓ "${name}" deleted successfully.`);
       // Optimistically update list
       setListings((prev) => prev.filter((item) => (item.id || item._id) !== id));
@@ -104,13 +110,22 @@ export default function FarmerDashboardPage() {
           </p>
         </div>
 
-        <button
-          className="primary-btn"
-          onClick={() => setShowAddModal(true)}
-          style={{ padding: '10px 18px' }}
-        >
-          + Add New Produce
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <Link
+            to="/orders"
+            className="secondary-btn"
+            style={{ padding: '9px 16px', background: 'white' }}
+          >
+            📦 Incoming Orders
+          </Link>
+          <button
+            className="primary-btn"
+            onClick={() => setShowAddModal(true)}
+            style={{ padding: '10px 18px' }}
+          >
+            + Add New Produce
+          </button>
+        </div>
       </div>
 
       {statusMsg && (

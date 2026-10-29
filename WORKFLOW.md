@@ -94,7 +94,7 @@ Upgrade the existing Kisan Market frontend into a working MERN-stack agricultura
 - Changes persist in MongoDB after a page refresh.
 - Unauthorized and invalid operations are rejected.
 
-### M5 — Authentication and roles
+### M5 — Authentication and roles [COMPLETED]
 **Tasks**
 1. Implement registration and login APIs.
 2. Hash passwords with bcrypt; never store plaintext passwords.
@@ -109,7 +109,7 @@ Upgrade the existing Kisan Market frontend into a working MERN-stack agricultura
 - Backend authorization is enforced even if someone bypasses the frontend.
 - Passwords and secrets are not exposed in responses or committed files.
 
-### M6 — Buyer and farmer workflows
+### M6 — Buyer and farmer workflows [COMPLETED]
 **Tasks**
 1. Farmer dashboard: show that farmer's real listings and allow create/edit/delete.
 2. Buyer experience: browse, search, filter, and view product details.

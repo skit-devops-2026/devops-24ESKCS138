@@ -1,28 +1,42 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
-  const [role, setRole] = useState('farmer');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [statusMsg, setStatusMsg] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirect = searchParams.get('redirect');
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setErrorMsg('');
+
     if (!email || !password) {
-      setStatusMsg('Please provide both email and password.');
+      setErrorMsg('Please enter both email and password.');
       return;
     }
 
-    setStatusMsg(`Logging in as ${role}... (Frontend UI ready, connecting to JWT in M5)`);
-    setTimeout(() => {
-      if (role === 'farmer') {
+    try {
+      setLoading(true);
+      const user = await login(email, password);
+
+      if (redirect) {
+        navigate(redirect);
+      } else if (user.role === 'farmer') {
         navigate('/farmer/dashboard');
       } else {
         navigate('/products');
       }
-    }, 1000);
+    } catch (err) {
+      setErrorMsg(err.message || 'Login failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -31,35 +45,18 @@ export default function LoginPage() {
         <h2>Welcome Back</h2>
         <p className="subtitle">Sign in to your Kisan Market account</p>
 
-        <div className="role-selector">
-          <button
-            type="button"
-            className={`role-btn ${role === 'farmer' ? 'active' : ''}`}
-            onClick={() => setRole('farmer')}
-          >
-            👨‍🌾 I am a Farmer
-          </button>
-          <button
-            type="button"
-            className={`role-btn ${role === 'buyer' ? 'active' : ''}`}
-            onClick={() => setRole('buyer')}
-          >
-            🛒 I am a Buyer
-          </button>
-        </div>
-
-        {statusMsg && (
+        {errorMsg && (
           <div
             style={{
               padding: '10px 14px',
               borderRadius: '6px',
               fontSize: '13px',
-              background: '#e0f2fe',
-              color: '#0369a1',
+              background: '#fee2e2',
+              color: '#b91c1c',
               marginBottom: '15px',
             }}
           >
-            {statusMsg}
+            ⚠️ {errorMsg}
           </div>
         )}
 
@@ -89,9 +86,10 @@ export default function LoginPage() {
           <button
             type="submit"
             className="primary-btn"
+            disabled={loading}
             style={{ width: '100%', padding: '12px', marginTop: '10px' }}
           >
-            Sign In
+            {loading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
 

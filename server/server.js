@@ -3,6 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import healthRoutes from './routes/healthRoutes.js';
 import productRoutes from './routes/productRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+import orderRoutes from './routes/orderRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { connectDB } from './config/db.js';
 
@@ -20,7 +22,7 @@ const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 app.use(
   cors({
     origin: [CLIENT_URL, 'http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:3000'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   })
@@ -40,11 +42,15 @@ app.get('/', (req, res) => {
     message: 'Welcome to Kisan Market API',
     healthCheck: '/api/health',
     productsEndpoint: '/api/products',
+    authEndpoint: '/api/auth',
+    ordersEndpoint: '/api/orders',
   });
 });
 
 app.use('/api/health', healthRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/orders', orderRoutes);
 
 // 404 Route Handler
 app.use((req, res) => {
